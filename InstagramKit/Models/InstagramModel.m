@@ -26,9 +26,21 @@
 {
     self = [super init];
     if (self && IKNotNull(info)) {
+        _info = info;
         _Id = [[NSString alloc] initWithString:info[kID]];
     }
     return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aCoder
+{
+    NSDictionary *info = [aCoder decodeObjectForKey:@"info"];
+    return [self initWithInfo:info];
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeObject:self.info forKey:@"info"];
 }
 
 @end

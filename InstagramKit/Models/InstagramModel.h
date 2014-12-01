@@ -22,6 +22,7 @@
 
 @interface InstagramModel : NSObject
 
+@property (readonly) NSDictionary* info;
 @property (readonly) NSString* Id;
 
 - (id)initWithInfo:(NSDictionary *)info;
@@ -57,7 +58,7 @@
 #define kVideos @"videos"
 #define kLocation @"location"
 #define kType @"type"
-
+#define kUserHasLiked @"user_has_liked"
 #define kCreator @"from"
 #define kText @"text"
 

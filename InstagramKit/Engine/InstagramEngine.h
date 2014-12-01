@@ -297,4 +297,27 @@ typedef NS_OPTIONS(NSInteger, IKLoginScope) {
                      withSuccess:(void (^)(NSArray *objects, InstagramPaginationInfo *paginationInfo))success
                          failure:(InstagramFailureBlock)failure;
 
+
+#pragma mark - Low API -
+
+- (void)getPath:(NSString *)path
+     parameters:(NSDictionary *)parameters
+  responseModel:(Class)modelClass
+        success:(void (^)(id response, InstagramPaginationInfo *paginationInfo))success
+        failure:(void (^)(NSError* error, NSInteger statusCode))failure;
+
+
+- (void)postPath:(NSString *)path
+     parameters:(NSDictionary *)parameters
+   responseModel:(Class)modelClass
+        success:(void (^)(NSDictionary *responseObject))success
+        failure:(void (^)(NSError* error, NSInteger statusCode))failure;
+
+
+- (void)deletePath:(NSString *)path
+      parameters:(NSDictionary *)parameters
+   responseModel:(Class)modelClass
+         success:(void (^)(void))success
+         failure:(void (^)(NSError* error, NSInteger statusCode))failure;
+
 @end
