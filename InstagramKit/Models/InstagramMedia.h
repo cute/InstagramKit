@@ -48,6 +48,7 @@
 @property (nonatomic, readonly) CGSize standardResolutionImageFrameSize;
 
 @property (nonatomic, readonly) BOOL isVideo;
+@property (nonatomic, readonly) BOOL userHasLiked;
 @property (nonatomic, readonly) NSURL *lowResolutionVideoURL;
 @property (nonatomic, readonly) CGSize lowResolutionVideoFrameSize;
 @property (nonatomic, readonly) NSURL *standardResolutionVideoURL;
