@@ -57,7 +57,7 @@
 
 - (void)loadCountsWithSuccess:(void(^)(void))success failure:(void(^)(void))failure
 {
-    [[InstagramEngine sharedEngine] getUserDetails:self withSuccess:^(InstagramUser *userDetail) {
+    [[InstagramEngine sharedEngine] getUserDetails:self.Id withSuccess:^(InstagramUser *userDetail) {
         _mediaCount = userDetail.mediaCount;
         _followsCount = userDetail.followsCount;
         _followedByCount = userDetail.followedByCount;
