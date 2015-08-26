@@ -44,11 +44,11 @@ NSString *const kInstagramKitErrorDomain = @"InstagramKitErrorDomain";
 
 
 /* From the Documentation :
- 
+
  Relationships are expressed using the following terms:
  outgoing_status: Your relationship to the user. Can be "follows", "requested", "none".
  incoming_status: A user's relationship to you. Can be "followed_by", "requested_by", "blocked_by_you", "none".
- 
+
  */
 
 NSString *const kRelationshipOutgoingStatusKey = @"outgoing_status";
@@ -120,24 +120,29 @@ typedef enum
     return dict;
 }
 
++ (NSURLSessionConfiguration *)sessionConfiguration {
+  return nil;
+}
+
 - (id)init {
     if (self = [super init])
     {
         NSDictionary *sharedEngineConfiguration = [InstagramEngine sharedEngineConfiguration];
         id url = nil;
         url = sharedEngineConfiguration[kInstagramKitBaseUrlConfigurationKey];
-        
+
         if (url) {
             url = [NSURL URLWithString:url];
         } else {
             url = [NSURL URLWithString:kInstagramKitBaseUrlDefault];
         }
-        
+
         NSAssert(url, @"Base URL not valid: %@", sharedEngineConfiguration[kInstagramKitBaseUrlConfigurationKey]);
 #if (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0)
         self.httpManager = [[AFHTTPRequestOperationManager alloc] initWithBaseURL:url];
 #else
-        self.httpManager = [[AFHTTPSessionManager alloc] initWithBaseURL:url];
+        self.httpManager = [[AFHTTPSessionManager alloc] initWithBaseURL:url
+                                                    sessionConfiguration:[InstagramEngine sessionConfiguration]];
 #endif
 
         self.appClientID =  sharedEngineConfiguration[kInstagramKitAppClientIdConfigurationKey];
@@ -171,22 +176,22 @@ typedef enum
     NSMutableDictionary *params = [@{kKeyClientID: self.appClientID,
                                      @"redirect_uri": self.appRedirectURL,
                                      @"response_type": @"token"} mutableCopy];
-    
+
     if(scope)
     {
         params[@"scope"] = [InstagramEngine stringForScope:scope];
     }
-    
+
     NSMutableArray *queryElements = [NSMutableArray arrayWithCapacity:params.count];
     [params enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
         [queryElements addObject:[NSString stringWithFormat:@"%@=%@", key, value]];
     }];
-    
+
     NSString *queryString = [queryElements componentsJoinedByString:@"&"];
-    
+
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@",
         self.authorizationURL, queryString]];
-    
+
     self.instagramLoginBlock = block;
 
     [[UIApplication sharedApplication] openURL:url];
@@ -194,12 +199,12 @@ typedef enum
 
 + (NSString *)stringForScope:(IKLoginScope)scope
 {
-    
+
     NSArray *typeStrings = @[@"basic",@"comments",@"relationships",@"likes"];
     NSMutableArray *strings = [NSMutableArray arrayWithCapacity:4];
-    
+
 #define kBitsUsedByIKLoginScope 4
-    
+
     for (NSUInteger i=0; i < kBitsUsedByIKLoginScope; i++)
     {
         NSUInteger enumBitValueToCheck = 1 << i;
@@ -209,9 +214,9 @@ typedef enum
     if (!strings.count) {
         return @"basic";
     }
-    
+
     return [strings componentsJoinedByString:@"+"];
-    
+
 }
 
 - (void)cancelLogin
@@ -238,7 +243,7 @@ typedef enum
     {
         return NO;
     }
-    
+
     NSString* accessToken = [self queryStringParametersFromString:url.fragment][@"access_token"];
     if (accessToken)
     {
@@ -261,26 +266,26 @@ typedef enum
 {
 //    Clear all cookies so the next time the user wishes to switch accounts,
 //    they can do so
-    
+
     NSHTTPCookie *cookie;
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     for (cookie in [storage cookies]) {
         [storage deleteCookie:cookie];
     }
     [[NSUserDefaults standardUserDefaults] synchronize];
-    
+
     self.accessToken = nil;
-    
+
     NSLog(@"User is now logged out");
-    
+
 #ifdef DEBUG
-    
+
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Logged out" message:@"The user is now logged out. Proceed with dismissing the view. This message only appears in the debug environment." delegate:nil cancelButtonTitle:@"Okay" otherButtonTitles:nil, nil];
-    
+
     [alert show];
-    
+
 #endif
-    
+
 }
 
 -(NSDictionary*)queryStringParametersFromString:(NSString*)string {
@@ -317,7 +322,7 @@ typedef enum
     {
         [params setObject:self.appClientID forKey:kKeyClientID];
     }
-    
+
     NSString *percentageEscapedPath = [path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 
     [self.httpManager GET:percentageEscapedPath
@@ -383,7 +388,7 @@ typedef enum
     }
     else
         [params setObject:self.appClientID forKey:kKeyClientID];
-    
+
     [self.httpManager POST:path
                     parameters:params
 #if (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0)
@@ -1153,20 +1158,20 @@ typedef enum
 {
     NSString *relativePath = [[paginationInfo.nextURL absoluteString] stringByReplacingOccurrencesOfString:[self.httpManager.baseURL absoluteString] withString:@""];
     [self getPath:relativePath parameters:nil responseModel:paginationInfo.type success:^(id response, InstagramPaginationInfo *paginationInfo) {
-        
+
 		if(success)
 		{
 			NSArray *objects = response;
 			success(objects, paginationInfo);
 		}
-		
+
     } failure:^(NSError *error, NSInteger statusCode) {
-        
+
 		if(failure)
 		{
 			failure(error);
 		}
-		
+
     }];
 }
 
